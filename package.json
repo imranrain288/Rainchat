@@ -10,7 +10,9 @@
     "install:client": "npm --prefix client install",
     "install:all": "npm run install:server && npm run install:client",
     "dev": "node start-dev.js",
-    "seed": "npm --prefix server run seed"
+    "seed": "npm --prefix server run seed",
+    "predeploy": "npm --prefix client run build",
+    "deploy": "gh-pages -d client/dist"
   },
   "keywords": [
     "mern",
@@ -19,5 +21,11 @@
     "react",
     "express",
     "mongodb"
-  ]
+  ],
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  }
+
+  
 }
+

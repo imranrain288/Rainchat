@@ -68,6 +68,11 @@ GEMINI_MODEL=gemini-3.8-flash
 ```
 Restart the backend after changing environment variables.
 
+### 5. Deploy the frontend and backend
+The frontend and backend must both be deployed. For a separate backend host, set `VITE_API_URL` in the frontend build environment to the backend origin (for example, `https://your-api.example.com`, with no `/api` suffix). Set `CLIENT_ORIGIN` on the backend to the exact public frontend origin (for example, `https://your-name.github.io`); comma-separate origins if needed. The backend also needs a reachable MongoDB database configured with `MONGO_URI`.
+
+For a local frontend build, leave `VITE_API_URL` unset to use the Vite `/api` and Socket.IO development proxies.
+
 ---
 
 ## 👤 One-Click Demo Credentials

@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import { useAuth } from './AuthContext';
 
 const SocketContext = createContext(null);
+const SOCKET_ORIGIN = import.meta.env.VITE_API_URL || '/';
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
@@ -11,8 +12,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user?._id) {
-      // Connect to server (using relative path which is proxied by Vite or absolute if needed)
-      const socketConnection = io('/', {
+      const socketConnection = io(SOCKET_ORIGIN, {
         query: {
           userId: user._id,
         },
