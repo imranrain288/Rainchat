@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-    base: "/RainChat-Real-time-Messaging-Platform/",
     plugins: [react()],
     server: {
         proxy: {

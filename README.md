@@ -68,10 +68,15 @@ GEMINI_MODEL=gemini-3.8-flash
 ```
 Restart the backend after changing environment variables.
 
-### 5. Deploy the frontend and backend
-The frontend and backend must both be deployed. For a separate backend host, set `VITE_API_URL` in the frontend build environment to the backend origin (for example, `https://your-api.example.com`, with no `/api` suffix). Set `CLIENT_ORIGIN` on the backend to the exact public frontend origin (for example, `https://your-name.github.io`); comma-separate origins if needed. The backend also needs a reachable MongoDB database configured with `MONGO_URI`.
+### 5. Deploy on Netlify
+Netlify serves the frontend; the Express API and Socket.IO server must run on a separate Node.js host that supports persistent WebSocket connections. The backend also needs a reachable MongoDB database.
 
-For a local frontend build, leave `VITE_API_URL` unset to use the Vite `/api` and Socket.IO development proxies.
+1. Push this repository to GitHub, then import it in Netlify. Netlify reads `netlify.toml` for the client build and SPA routing.
+2. Deploy the backend to a Node.js host. Configure its environment variables, including `MONGO_URI`, `JWT_SECRET`, and `CLIENT_ORIGIN` set to your exact Netlify site origin (for example, `https://your-site.netlify.app`). Add any optional `GEMINI_API_KEY` and SMTP settings you use.
+3. In Netlify, set the environment variable `VITE_API_URL` to the backend's public origin (for example, `https://your-api.example.com`, without an `/api` suffix), then trigger a new deploy. This URL is used by both REST API requests and Socket.IO.
+4. Confirm the backend is reachable at `https://your-api.example.com/api/health` and that its CORS allowlist includes the Netlify site origin.
+
+The app requires a backend host that supports Socket.IO; Netlify Functions are not a replacement for this persistent server. For local development, leave `VITE_API_URL` unset to use the Vite `/api` and Socket.IO development proxies.
 
 ---
 
