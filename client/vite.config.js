@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-    base: '/Rainchat/',
+    base: process.env.VERCEL ? '/' : '/Rainchat/',
     plugins: [react()],
     server: {
         proxy: {
