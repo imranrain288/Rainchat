@@ -13,10 +13,11 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user?._id) {
       const socketConnection = io(SOCKET_ORIGIN, {
+        path: import.meta.env.PROD ? '/api/socket-io/socket.io' : '/socket.io',
         query: {
           userId: user._id,
         },
-        transports: ['websocket', 'polling'],
+        transports: import.meta.env.PROD ? ['websocket'] : ['websocket', 'polling'],
       });
 
       setSocket(socketConnection);

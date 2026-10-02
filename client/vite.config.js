@@ -6,10 +6,11 @@ export default defineConfig({
     plugins: [react()],
     server: {
         proxy: {
-            '/api': 'http://localhost:5000',
+            '/api': 'https://rainchat-liart.vercel.app/',
             '/socket.io': {
-                target: 'http://localhost:5000',
+                target: 'https://rainchat-liart.vercel.app/',
                 ws: true,
+                rewrite: (path) => path.replace(/^\/socket\.io/, '/api/socket-io/socket.io'),
             },
         },
     },

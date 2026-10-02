@@ -15,6 +15,7 @@ const allowedOrigins = (process.env.CLIENT_ORIGIN || [
   .filter(Boolean);
 
 const io = new Server(server, {
+  path: process.env.VERCEL ? '/api/socket-io/socket.io' : '/socket.io',
   cors: {
     origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],

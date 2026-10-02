@@ -43,6 +43,39 @@ app.use(
   })
 );
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'RainChat API',
+    health: '/api/health',
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'MERN Messaging Server',
+    version: '2.0.0',
+    timestamp: new Date(),
+  });
+});
+
+app.use('/api', async (req, res, next) => {
+  if (!process.env.MONGO_URI && process.env.VERCEL) {
+    return res.status(503).json({ message: 'MONGO_URI is not configured' });
+  }
+
+  try {
+    const connected = await connectDB();
+    if (!connected) {
+      return res.status(503).json({ message: 'Database connection unavailable' });
+    }
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+});
+
 // Serve static uploads
 app.use('/uploads', express.static(uploadsDir));
 
@@ -52,15 +85,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/ai', aiRoutes);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    service: 'MERN Messaging Server',
-    version: '2.0.0',
-    timestamp: new Date(),
-  });
-});
+export default app;
 
 // Start Server
 const startServer = async () => {
@@ -72,4 +97,6 @@ const startServer = async () => {
   });
 };
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}

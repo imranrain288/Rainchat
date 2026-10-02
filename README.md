@@ -69,14 +69,15 @@ GEMINI_MODEL=gemini-3.8-flash
 Restart the backend after changing environment variables.
 
 ### 5. Deploy on Vercel
-Deploy the Vite frontend to Vercel and run the Express API plus Socket.IO server on a separate Node.js host that supports WebSockets (for example, Render or Railway). Vercel Functions do not support this app's persistent Socket.IO server. The backend also needs a reachable MongoDB database.
+Deploy the frontend and backend as separate Vercel projects from this repository. The backend is an Express app with a separate Socket.IO function. Vercel WebSocket support is currently in beta and requires Fluid Compute.
 
-1. Push the repository to GitHub and import it into Vercel. Set **Root Directory** to `client`; use the Vite framework preset, build command `npm run build`, and output directory `dist`.
-2. Deploy the backend from the `server` directory to a persistent Node.js host. Set `MONGO_URI` and `JWT_SECRET`, and set `CLIENT_ORIGIN` to the exact Vercel site origin (for example, `https://your-rainchat.vercel.app`). Add any optional `GEMINI_API_KEY` and SMTP settings you use.
-3. In Vercel's project settings, set `VITE_API_URL` to the backend's public origin (for example, `https://your-api.example.com`, without an `/api` suffix). Redeploy the frontend after setting it; this value is used for both REST API requests and Socket.IO.
-4. Confirm the backend is reachable at `https://your-api.example.com/api/health`, then test signup, login, and real-time messaging on the Vercel site.
+1. Create the frontend Vercel project with **Root Directory** set to `client`. Use the Vite preset, build command `npm run build`, and output directory `dist`.
+2. Create a second Vercel project for this repository with **Root Directory** set to `server`. Vercel detects the Express app from `src/index.js`; do not add a catch-all route to a root `index.js`.
+3. Set backend environment variables `MONGO_URI`, `JWT_SECRET`, and `CLIENT_ORIGIN` (the exact frontend origin, such as `https://your-rainchat.vercel.app`). Add optional `GEMINI_API_KEY` and SMTP settings as needed. Enable **Fluid Compute** in the backend project's Function settings if it is not already enabled.
+4. Set the frontend project's `VITE_API_URL` to the backend's public origin, without an `/api` suffix, then redeploy the frontend.
+5. Check `https://your-api.vercel.app/` and `https://your-api.vercel.app/api/health`; both should return JSON. Test login and real-time messaging from the frontend.
 
-The Vercel build automatically uses `/` as its asset base; other builds keep the `/Rainchat/` base used by GitHub Pages. For production, store uploaded files somewhere persistent (such as object storage or a persistent disk), since a server's local filesystem may be temporary. For local development, leave `VITE_API_URL` unset to use the Vite `/api` and Socket.IO development proxies.
+Vercel WebSocket connections close when their function reaches its duration limit, so clients must reconnect. This app keeps online-user routing in process memory; for reliable real-time delivery across multiple function instances, configure a shared Socket.IO adapter such as Redis. Uploaded files also need persistent object storage because Vercel function filesystems are temporary. The Vercel build uses `/` as its asset base; other builds keep the `/Rainchat/` base used by GitHub Pages. For local development, leave `VITE_API_URL` unset to use the Vite proxies.
 
 ---
 
