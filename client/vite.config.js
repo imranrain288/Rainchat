@@ -6,9 +6,9 @@ export default defineConfig({
     plugins: [react()],
     server: {
         proxy: {
-            '/api': 'https://rainchat-gilt.vercel.app',
+            '/api': 'https://rainchat-1.onrender.com',
             '/socket.io': {
-                target: 'https://rainchat-gilt.vercel.app',
+                target: 'https://rainchat-1.onrender.com',
                 ws: true,
                 rewrite: (path) => path.replace(/^\/socket\.io/, '/api/socket-io/socket.io'),
             },
