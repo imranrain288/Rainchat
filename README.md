@@ -68,15 +68,15 @@ GEMINI_MODEL=gemini-3.8-flash
 ```
 Restart the backend after changing environment variables.
 
-### 5. Deploy on Netlify
-Netlify serves the frontend; the Express API and Socket.IO server must run on a separate Node.js host that supports persistent WebSocket connections. The backend also needs a reachable MongoDB database.
+### 5. Deploy on Vercel
+Deploy the Vite frontend to Vercel and run the Express API plus Socket.IO server on a separate Node.js host that supports WebSockets (for example, Render or Railway). Vercel Functions do not support this app's persistent Socket.IO server. The backend also needs a reachable MongoDB database.
 
-1. Push this repository to GitHub, then import it in Netlify. Netlify reads `netlify.toml` for the client build and SPA routing.
-2. Deploy the backend to a Node.js host. Configure its environment variables, including `MONGO_URI`, `JWT_SECRET`, and `CLIENT_ORIGIN` set to your exact Netlify site origin (for example, `https://your-site.netlify.app`). Add any optional `GEMINI_API_KEY` and SMTP settings you use.
-3. In Netlify, set the environment variable `VITE_API_URL` to the backend's public origin (for example, `https://your-api.example.com`, without an `/api` suffix), then trigger a new deploy. This URL is used by both REST API requests and Socket.IO.
-4. Confirm the backend is reachable at `https://your-api.example.com/api/health` and that its CORS allowlist includes the Netlify site origin.
+1. Push the repository to GitHub and import it into Vercel. Set **Root Directory** to `client`; use the Vite framework preset, build command `npm run build`, and output directory `dist`.
+2. Deploy the backend from the `server` directory to a persistent Node.js host. Set `MONGO_URI` and `JWT_SECRET`, and set `CLIENT_ORIGIN` to the exact Vercel site origin (for example, `https://your-rainchat.vercel.app`). Add any optional `GEMINI_API_KEY` and SMTP settings you use.
+3. In Vercel's project settings, set `VITE_API_URL` to the backend's public origin (for example, `https://your-api.example.com`, without an `/api` suffix). Redeploy the frontend after setting it; this value is used for both REST API requests and Socket.IO.
+4. Confirm the backend is reachable at `https://your-api.example.com/api/health`, then test signup, login, and real-time messaging on the Vercel site.
 
-The app requires a backend host that supports Socket.IO; Netlify Functions are not a replacement for this persistent server. For local development, leave `VITE_API_URL` unset to use the Vite `/api` and Socket.IO development proxies.
+The Vercel build automatically uses `/` as its asset base; other builds keep the `/Rainchat/` base used by GitHub Pages. For production, store uploaded files somewhere persistent (such as object storage or a persistent disk), since a server's local filesystem may be temporary. For local development, leave `VITE_API_URL` unset to use the Vite `/api` and Socket.IO development proxies.
 
 ---
 
