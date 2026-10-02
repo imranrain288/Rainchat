@@ -6,7 +6,7 @@ export const connectDB = async () => {
   if (mongoose.connection.readyState === 1) return true;
   if (connectionPromise) return connectionPromise;
 
-  connectionPromise = mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/chatapp', {
+  connectionPromise = mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/chatapp', {
     serverSelectionTimeoutMS: 5000,
   })
     .then((conn) => {
@@ -15,7 +15,7 @@ export const connectDB = async () => {
     })
     .catch((error) => {
       console.error(`\x1b[31m✖ MongoDB Connection Error: ${error.message}\x1b[0m`);
-      console.warn(`\x1b[33m⚠ Ensure MongoDB service is running on ${process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/chatapp'}\x1b[0m`);
+      console.warn('\x1b[33m⚠ Check MongoDB URI configuration, DNS resolution, network access, and Atlas IP access rules.\x1b[0m');
       return false;
     })
     .finally(() => {
