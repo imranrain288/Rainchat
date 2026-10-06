@@ -284,13 +284,28 @@ export const ChatProvider = ({ children }) => {
     if (!selectedUser?._id || !content.trim()) return;
 
     try {
-      const recipients = selectedUser.isGroup ? selectedUser.participants || [] : [selectedUser];
+      let conversation = selectedUser;
+      let recipients = conversation.isGroup ? conversation.participants || [] : [conversation];
+      if (conversation.isGroup && recipients.some((participant) => !participant.encryptionPublicKey)) {
+        const response = await api.getUsers();
+        const refreshedGroup = response.users?.find((entry) => entry._id === conversation._id);
+        if (refreshedGroup) {
+          conversation = { ...conversation, participants: refreshedGroup.participants };
+          recipients = conversation.participants;
+          setSelectedUser((current) => current?._id === conversation._id ? conversation : current);
+          setUsers((current) => current.map((entry) => (
+            entry._id === conversation._id
+              ? { ...entry, participants: conversation.participants }
+              : entry
+          )));
+        }
+      }
       const encryptedMessage = await encryptContent(content.trim(), recipients, attachmentName);
-      const res = await api.sendMessage(selectedUser._id, {
+      const res = await api.sendMessage(conversation._id, {
         ...encryptedMessage,
         messageType,
         replyTo: replyTo?._id,
-      }, selectedUser.isGroup);
+      }, conversation.isGroup);
 
       if (res.success && res.message) {
         const newMsg = await decryptMessage(res.message);

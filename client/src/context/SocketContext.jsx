@@ -14,6 +14,7 @@ export const SocketProvider = ({ children }) => {
     if (user?._id) {
       const socketConnection = io(SOCKET_ORIGIN, {
         path: import.meta.env.PROD ? '/api/socket-io/socket.io' : '/socket.io',
+        autoConnect: false,
         query: {
           userId: user._id,
         },
@@ -21,12 +22,18 @@ export const SocketProvider = ({ children }) => {
       });
 
       setSocket(socketConnection);
+      let active = true;
+      const connectTimer = setTimeout(() => {
+        if (active) socketConnection.connect();
+      }, 0);
 
       socketConnection.on('getOnlineUsers', (users) => {
         setOnlineUsers(users);
       });
 
       return () => {
+        active = false;
+        clearTimeout(connectTimer);
         socketConnection.close();
       };
     } else {

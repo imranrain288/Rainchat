@@ -144,17 +144,18 @@ export const Sidebar = ({ isMobileOpen, onSelectUser, onOpenAssistant, isAssista
             </div>
             <label className="form-label" htmlFor="group-name">Group name</label>
             <input id="group-name" className="text-input group-name-input" value={groupName} onChange={(event) => setGroupName(event.target.value)} maxLength={80} required />
-            <span className="form-label group-members-label">Choose at least two members</span>
+            <span className="form-label group-members-label">Choose at least two members. Everyone must sign in once to set up encryption.</span>
             <div className="group-member-options">
               {users.filter((person) => !person.isGroup).map((person) => (
                 <label key={person._id} className="group-member-option">
                   <input
                     type="checkbox"
+                    disabled={!person.encryptionPublicKey}
                     checked={selectedMemberIds.includes(person._id)}
                     onChange={(event) => setSelectedMemberIds((current) => event.target.checked ? [...current, person._id] : current.filter((id) => id !== person._id))}
                   />
                   <img src={person.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${person.username}`} alt="" />
-                  <span>{person.fullName}</span>
+                  <span>{person.fullName}{!person.encryptionPublicKey && ' (encryption not set up)'}</span>
                 </label>
               ))}
             </div>

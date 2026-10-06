@@ -166,9 +166,17 @@ export const createGroup = async (req, res) => {
     if (uniqueMemberIds.length < 3) {
       return res.status(400).json({ success: false, message: 'Choose at least two other members.' });
     }
-    const validMembers = await User.countDocuments({ _id: { $in: uniqueMemberIds } });
-    if (validMembers !== uniqueMemberIds.length) {
+    const members = await User.find({ _id: { $in: uniqueMemberIds } }).select('fullName encryptionPublicKey');
+    if (members.length !== uniqueMemberIds.length) {
       return res.status(400).json({ success: false, message: 'One or more selected members could not be found.' });
+    }
+    const membersMissingEncryption = members.filter((member) => !member.encryptionPublicKey);
+    if (membersMissingEncryption.length) {
+      const names = membersMissingEncryption.map((member) => member.fullName).join(', ');
+      return res.status(400).json({
+        success: false,
+        message: `End-to-end encryption is not set up for ${names}. Ask them to sign in and retry.`,
+      });
     }
     const conversation = await Conversation.create({
       participants: uniqueMemberIds,

@@ -4,15 +4,18 @@ import express from 'express';
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = (process.env.CLIENT_ORIGIN || [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
-].join(','))
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = [
+  ...(process.env.CLIENT_ORIGIN || process.env.CLIENT_URL || [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ].join(','))
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+  'https://localhost',
+];
 
 const io = new Server(server, {
   path: process.env.VERCEL ? '/api/socket-io/socket.io' : '/socket.io',

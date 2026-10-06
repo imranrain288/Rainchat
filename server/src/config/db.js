@@ -6,7 +6,19 @@ export const connectDB = async () => {
   if (mongoose.connection.readyState === 1) return true;
   if (connectionPromise) return connectionPromise;
 
-  connectionPromise = mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/chatapp', {
+  const isLocalDevelopment = process.env.NODE_ENV !== 'production'
+    && !process.env.VERCEL
+    && !process.env.RENDER;
+  const mongoUri = process.env.MONGO_URI
+    || process.env.MONGODB_URI
+    || (isLocalDevelopment && 'mongodb://127.0.0.1:27017/chatapp');
+
+  if (!mongoUri) {
+    console.error('\x1b[31m✖ MongoDB Connection Error: Set MONGO_URI or MONGODB_URI\x1b[0m');
+    return false;
+  }
+
+  connectionPromise = mongoose.connect(mongoUri, {
     serverSelectionTimeoutMS: 5000,
   })
     .then((conn) => {

@@ -39,7 +39,7 @@ A full-stack, high-performance messaging website built on the **MERN** stack (**
 
 ### 1. Prerequisites
 - **Node.js** (v18+)
-- **MongoDB** running on `mongodb://127.0.0.1:27017` (or provide `MONGO_URI` in `server/.env`)
+- **MongoDB** running on `mongodb://127.0.0.1:27017` (or provide `MONGO_URI` or `MONGODB_URI` in `server/.env`)
 
 ### 2. Start Both Server & Client Concurrently
 From the project root directory, run:
@@ -73,11 +73,23 @@ Deploy the frontend and backend as separate Vercel projects from this repository
 
 1. Create the frontend Vercel project with **Root Directory** set to `client`. Use the Vite preset, build command `npm run build`, and output directory `dist`.
 2. Create a second Vercel project for this repository with **Root Directory** set to `server`. Vercel detects the Express app from `src/index.js`; do not add a catch-all route to a root `index.js`.
-3. Set backend environment variables `MONGO_URI`, `JWT_SECRET`, and `CLIENT_ORIGIN` (the exact frontend origin, such as `https://your-rainchat.vercel.app`). Add optional `GEMINI_API_KEY` and SMTP settings as needed. Enable **Fluid Compute** in the backend project's Function settings if it is not already enabled.
+3. Set backend environment variables `MONGO_URI` (or `MONGODB_URI`), `JWT_SECRET`, and `CLIENT_ORIGIN` (the exact frontend origin, such as `https://your-rainchat.vercel.app`). The MongoDB URI must point to a reachable database; production does not fall back to localhost. Add optional `GEMINI_API_KEY` and SMTP settings as needed. Enable **Fluid Compute** in the backend project's Function settings if it is not already enabled.
 4. Set the frontend project's `VITE_API_URL` to the backend's public origin, without an `/api` suffix, then redeploy the frontend.
 5. Check `https://your-api.vercel.app/` and `https://your-api.vercel.app/api/health`; both should return JSON. Test login and real-time messaging from the frontend.
 
 Vercel WebSocket connections close when their function reaches its duration limit, so clients must reconnect. This app keeps online-user routing in process memory; for reliable real-time delivery across multiple function instances, configure a shared Socket.IO adapter such as Redis. Uploaded files also need persistent object storage because Vercel function filesystems are temporary. The Vercel build uses `/` as its asset base; other builds keep the `/Rainchat/` base used by GitHub Pages. For local development, leave `VITE_API_URL` unset to use the Vite proxies.
+
+### Build the Android app with Capacitor
+
+Set `VITE_API_URL` in `client/.env.production` to the deployed backend origin (without `/api`). Ensure the backend's `CLIENT_ORIGIN` allows `https://localhost`, then from `client` run:
+
+```bash
+npm run build:capacitor
+npx cap sync android
+npx cap open android
+```
+
+The Capacitor build uses relative asset URLs so the app can load its bundled files from Android WebView. Rebuild and sync after frontend or API URL changes.
 
 ---
 

@@ -17,15 +17,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 5000;
-const allowedOrigins = (process.env.CLIENT_ORIGIN || [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
-].join(','))
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = [
+  ...(process.env.CLIENT_ORIGIN || process.env.CLIENT_URL || [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ].join(','))
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+  'https://localhost',
+];
 
 // Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -61,10 +64,6 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api', async (req, res, next) => {
-  if (!process.env.MONGO_URI && process.env.VERCEL) {
-    return res.status(503).json({ message: 'MONGO_URI is not configured' });
-  }
-
   try {
     const connected = await connectDB();
     if (!connected) {

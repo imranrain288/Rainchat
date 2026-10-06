@@ -147,12 +147,14 @@ export const EncryptionProvider = ({ children }) => {
     }
     const recipientMap = new Map([[user._id, { userId: user._id, encryptionPublicKey: identity.publicKey }]]);
     recipients.forEach((recipient) => {
-      if (recipient?._id && recipient.encryptionPublicKey) {
-        recipientMap.set(String(recipient._id), {
-          userId: String(recipient._id),
-          encryptionPublicKey: recipient.encryptionPublicKey,
-        });
+      if (!recipient?._id || String(recipient._id) === user._id) return;
+      if (!recipient.encryptionPublicKey) {
+        throw new Error(`End-to-end encryption is not set up for ${recipient.fullName || 'a group member'}. Ask them to sign in and retry.`);
       }
+      recipientMap.set(String(recipient._id), {
+        userId: String(recipient._id),
+        encryptionPublicKey: recipient.encryptionPublicKey,
+      });
     });
     const recipientEntries = [...recipientMap.values()];
     if (recipientEntries.length < 2) throw new Error('A chat participant has no encryption key yet. Ask them to sign in and retry.');
