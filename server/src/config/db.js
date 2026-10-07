@@ -9,7 +9,7 @@ export const connectDB = async () => {
   const isLocalDevelopment = process.env.NODE_ENV !== 'production'
     && !process.env.VERCEL
     && !process.env.RENDER;
-  const mongoUri = process.env.MONGODB_URI
+  const mongoUri = process.env.MONGO_URI
     || process.env.MONGODB_URI
     || (isLocalDevelopment && 'mongodb://imranrain288_db_user:l4E8H53hzYXvy7AC@ac-3apmkym-shard-00-00.ob3vclt.mongodb.net:27017,ac-3apmkym-shard-00-01.ob3vclt.mongodb.net:27017,ac-3apmkym-shard-00-02.ob3vclt.mongodb.net:27017?authSource=admin&replicaSet=atlas-ufmk7y-shard-0&tls=true');
 
