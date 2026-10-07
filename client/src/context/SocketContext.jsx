@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext';
 
 const SocketContext = createContext(null);
 const SOCKET_ORIGIN = import.meta.env.VITE_API_URL || '/';
+const SOCKET_PATH = import.meta.env.VITE_SOCKET_PATH || '/socket.io';
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
@@ -13,7 +14,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user?._id) {
       const socketConnection = io(SOCKET_ORIGIN, {
-        path: import.meta.env.PROD ? '/api/socket-io/socket.io' : '/socket.io',
+        path: SOCKET_PATH,
         autoConnect: false,
         query: {
           userId: user._id,

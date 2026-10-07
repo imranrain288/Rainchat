@@ -26,70 +26,71 @@ const io = new Server(server, {
   },
 });
 
-// Map of userId -> socketId
-const userSocketMap = {};
+const userSocketMap = new Map();
 
-export const getReceiverSocketId = (receiverId) => {
-  return userSocketMap[receiverId?.toString()];
+export const getUserRoom = (userId) => {
+  const normalizedUserId = userId?.toString();
+  return normalizedUserId ? `user:${normalizedUserId}` : null;
 };
 
 io.on('connection', (socket) => {
   const userId = socket.handshake.query.userId;
   socket.data.userId = userId && userId !== 'undefined' ? userId : null;
 
-  if (userId && userId !== 'undefined') {
-    userSocketMap[userId] = socket.id;
+  if (socket.data.userId) {
+    socket.join(getUserRoom(userId));
+    const sockets = userSocketMap.get(userId) || new Set();
+    sockets.add(socket.id);
+    userSocketMap.set(userId, sockets);
     console.log(`\x1b[36m⚡ Socket connected: User ${userId} (Socket: ${socket.id})\x1b[0m`);
   }
+  io.emit('getOnlineUsers', [...userSocketMap.keys()]);
 
-  // Broadcast online user IDs to all connected clients
-  io.emit('getOnlineUsers', Object.keys(userSocketMap));
-
-  // User typing indicator
   socket.on('typing', ({ senderId, receiverId }) => {
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('userTyping', { senderId });
-    }
+    const receiverRoom = getUserRoom(receiverId);
+    if (receiverRoom) io.to(receiverRoom).emit('userTyping', { senderId });
   });
 
-  // User stopped typing
   socket.on('stopTyping', ({ senderId, receiverId }) => {
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('userStoppedTyping', { senderId });
-    }
+    const receiverRoom = getUserRoom(receiverId);
+    if (receiverRoom) io.to(receiverRoom).emit('userStoppedTyping', { senderId });
   });
 
-  // User read messages event
   socket.on('markAsRead', ({ senderId, receiverId }) => {
-    const senderSocketId = getReceiverSocketId(senderId);
-    if (senderSocketId) {
-      io.to(senderSocketId).emit('messagesReadNotification', { readBy: receiverId });
-    }
+    const senderRoom = getUserRoom(senderId);
+    if (senderRoom) io.to(senderRoom).emit('messagesReadNotification', { readBy: receiverId });
   });
 
-  const relayCallSignal = (eventName, payload = {}) => {
-    const recipientSocketId = getReceiverSocketId(payload.to);
-    if (!socket.data.userId || typeof payload.to !== 'string' || !recipientSocketId) {
+  const relayCallSignal = async (eventName, payload = {}) => {
+    const recipientRoom = getUserRoom(payload.to);
+    if (!socket.data.userId || !recipientRoom) {
       if (socket.data.userId && payload.callId) socket.emit('call:unavailable', { callId: payload.callId });
       return;
     }
+    const recipientSockets = await io.in(recipientRoom).fetchSockets();
+    if (!recipientSockets.length) {
+      if (payload.callId) socket.emit('call:unavailable', { callId: payload.callId });
+      return;
+    }
     const { to, ...signal } = payload;
-    io.to(recipientSocketId).emit(eventName, { ...signal, from: socket.data.userId });
+    io.to(recipientRoom).emit(eventName, { ...signal, from: socket.data.userId });
   };
 
   ['call:offer', 'call:answer', 'call:ice-candidate', 'call:decline', 'call:end', 'call:busy'].forEach((eventName) => {
-    socket.on(eventName, (payload) => relayCallSignal(eventName, payload));
+    socket.on(eventName, (payload) => {
+      relayCallSignal(eventName, payload)
+        .catch((error) => console.error(`Failed to relay ${eventName}:`, error.message));
+    });
   });
 
-  // Disconnection handler
   socket.on('disconnect', () => {
-    if (userId && userId !== 'undefined') {
-      delete userSocketMap[userId];
-      console.log(`\x1b[33m⚡ Socket disconnected: User ${userId}\x1b[0m`);
+    if (socket.data.userId) {
+      const sockets = userSocketMap.get(socket.data.userId);
+      sockets?.delete(socket.id);
+      if (!sockets?.size) userSocketMap.delete(socket.data.userId);
+      console.log(`\x1b[33m⚡ Socket disconnected: User ${userId} (Socket: ${socket.id})\x1b[0m`);
     }
-    io.emit('getOnlineUsers', Object.keys(userSocketMap));
+    io.emit('getOnlineUsers', [...userSocketMap.keys()]);
   });
 });
 

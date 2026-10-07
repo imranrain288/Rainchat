@@ -80,6 +80,8 @@ Deploy the frontend and backend as separate Vercel projects from this repository
 
 Vercel WebSocket connections close when their function reaches its duration limit, so clients must reconnect. This app keeps online-user routing in process memory; for reliable real-time delivery across multiple function instances, configure a shared Socket.IO adapter such as Redis. Uploaded files also need persistent object storage because Vercel function filesystems are temporary. The Vercel build uses `/` as its asset base; other builds keep the `/Rainchat/` base used by GitHub Pages. For local development, leave `VITE_API_URL` unset to use the Vite proxies.
 
+When deploying the frontend to Vercel and the backend to Render, set `VITE_API_URL` to the Render service origin and use the default Socket.IO path, `/socket.io`. `VITE_SOCKET_PATH` can override the path for a backend hosted behind a different Socket.IO route.
+
 ### Build the Android app with Capacitor
 
 Set `VITE_API_URL` in `client/.env.production` to the deployed backend origin (without `/api`). Ensure the backend's `CLIENT_ORIGIN` allows `https://localhost`, then from `client` run:

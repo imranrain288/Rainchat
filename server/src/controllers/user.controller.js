@@ -1,7 +1,7 @@
 import { User } from '../models/User.js';
 import { Message } from '../models/Message.js';
 import { Conversation } from '../models/Conversation.js';
-import { getReceiverSocketId, io } from '../socket/socket.js';
+import { getUserRoom, io } from '../socket/socket.js';
 
 const getOrCreateConversation = async (userId, otherUserId) => {
   let conversation = await Conversation.findOne({
@@ -197,7 +197,7 @@ export const createGroup = async (req, res) => {
     };
     conversation.participants.forEach((participant) => {
       if (participant._id.equals(req.user._id)) return;
-      const socketId = getReceiverSocketId(participant._id);
+      const socketId = getUserRoom(participant._id);
       if (socketId) io.to(socketId).emit('groupCreated', group);
     });
     return res.status(201).json({ success: true, group });
@@ -278,7 +278,7 @@ export const setUserBlocked = async (req, res) => {
     else currentUser.blockedUsers.pull(otherUserId);
     await currentUser.save();
 
-    const otherUserSocketId = getReceiverSocketId(otherUserId);
+    const otherUserSocketId = getUserRoom(otherUserId);
     if (otherUserSocketId) {
       io.to(otherUserSocketId).emit('userBlockStatusUpdated', {
         userId: req.user._id.toString(),
@@ -307,7 +307,7 @@ export const toggleConversationPin = async (req, res) => {
     else conversation.pinnedBy.addToSet(userId);
     await conversation.save();
 
-    const socketId = getReceiverSocketId(userId);
+    const socketId = getUserRoom(userId);
     if (socketId) io.to(socketId).emit('conversationPinUpdated', { userId: otherUserId.toString(), isPinned: !isPinned });
     return res.status(200).json({ success: true, isPinned: !isPinned });
   } catch (error) {
@@ -329,7 +329,7 @@ export const removeConversationFromList = async (req, res) => {
     conversation.pinnedBy.pull(userId);
     await conversation.save();
 
-    const socketId = getReceiverSocketId(userId);
+    const socketId = getUserRoom(userId);
     if (socketId) io.to(socketId).emit('conversationRemovedFromList', { userId: otherUserId.toString() });
     return res.status(200).json({ success: true });
   } catch (error) {

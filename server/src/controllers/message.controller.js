@@ -1,18 +1,18 @@
 import { Message } from '../models/Message.js';
 import { Conversation } from '../models/Conversation.js';
-import { getReceiverSocketId, io } from '../socket/socket.js';
+import { getUserRoom, io } from '../socket/socket.js';
 import { User } from '../models/User.js';
 import { sendOfflineMessageEmail } from '../services/email.service.js';
 
 const emitToMessageParticipants = (message, event, payload) => {
   [message.senderId, message.receiverId].filter(Boolean).forEach((participantId) => {
-    const socketId = getReceiverSocketId(participantId);
+    const socketId = getUserRoom(participantId);
     if (socketId) io.to(socketId).emit(event, payload);
   });
   if (message.conversationId) {
     Conversation.findById(message.conversationId).then((conversation) => {
       conversation?.participants.forEach((participantId) => {
-        const socketId = getReceiverSocketId(participantId);
+        const socketId = getUserRoom(participantId);
         if (socketId) io.to(socketId).emit(event, payload);
       });
     }).catch((error) => console.error('Failed to notify group members:', error.message));
@@ -60,7 +60,7 @@ export const getMessages = async (req, res) => {
     );
 
     if (updateResult.modifiedCount > 0) {
-      const senderSocketId = getReceiverSocketId(userToChatId);
+      const senderSocketId = getUserRoom(userToChatId);
       if (senderSocketId) {
         io.to(senderSocketId).emit('messagesReadNotification', {
           readBy: myId,
@@ -129,7 +129,7 @@ export const sendGroupMessage = async (req, res) => {
     const messagePayload = { ...newMessage.toObject(), senderName: sender.fullName, senderAvatar: sender.avatar };
     conversation.participants.forEach((participantId) => {
       if (participantId.equals(req.user._id)) return;
-      const socketId = getReceiverSocketId(participantId);
+      const socketId = getUserRoom(participantId);
       if (socketId) io.to(socketId).emit('newMessage', messagePayload);
     });
     return res.status(201).json({ success: true, message: messagePayload });
@@ -237,7 +237,7 @@ export const sendMessage = async (req, res) => {
     if (replyMessage) await newMessage.populate('replyTo', 'content senderId messageType encryption callType');
 
     // Real-time notification via Socket.io
-    const receiverSocketId = getReceiverSocketId(receiverId);
+    const receiverSocketId = getUserRoom(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('newMessage', newMessage);
     } else {
@@ -278,7 +278,7 @@ export const markMessagesAsRead = async (req, res) => {
       }
     );
 
-    const senderSocketId = getReceiverSocketId(userToChatId);
+    const senderSocketId = getUserRoom(userToChatId);
     if (senderSocketId) {
       io.to(senderSocketId).emit('messagesReadNotification', {
         readBy: myId,
@@ -321,7 +321,7 @@ export const deleteConversation = async (req, res) => {
     await conversation.save();
 
     [myId, userToChatId].forEach((participantId) => {
-      const socketId = getReceiverSocketId(participantId);
+      const socketId = getUserRoom(participantId);
       if (socketId) {
         io.to(socketId).emit('chatHistoryDeleted', {
           actorId: myId.toString(),
@@ -405,7 +405,7 @@ export const clearChat = async (req, res) => {
     }
 
     [myId, userToChatId].forEach((participantId) => {
-      const socketId = getReceiverSocketId(participantId);
+      const socketId = getUserRoom(participantId);
       if (socketId) {
         io.to(socketId).emit('chatHistoryCleared', {
           chatWithId: participantId.equals(myId) ? userToChatId.toString() : myId.toString(),
