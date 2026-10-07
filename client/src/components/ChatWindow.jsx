@@ -22,7 +22,11 @@ export const ChatWindow = ({ onBackToSidebar }) => {
   } = useChat();
   const { onlineUsers } = useSocket();
   const { call, startCall } = useCall();
-  const { status: encryptionStatus, error: encryptionError } = useEncryption();
+  const {
+    status: encryptionStatus,
+    error: encryptionError,
+    resetEncryptionIdentity,
+  } = useEncryption();
   const { user: currentUser } = useAuth();
   const messagesEndRef = useRef(null);
   const previousStatusRef = useRef({ userId: null, online: false });
@@ -33,9 +37,31 @@ export const ChatWindow = ({ onBackToSidebar }) => {
   const [actionError, setActionError] = useState('');
   const [isChatMenuOpen, setIsChatMenuOpen] = useState(false);
   const [isUpdatingBlock, setIsUpdatingBlock] = useState(false);
+  const [isResettingEncryption, setIsResettingEncryption] = useState(false);
 
   const isOnline = selectedUser && !selectedUser.isGroup && onlineUsers.includes(selectedUser._id);
   const isTyping = selectedUser && !selectedUser.isGroup && typingUsers[selectedUser._id];
+  const canResetEncryption = encryptionStatus === 'error' && (
+    encryptionError.includes('already has an encryption key on another device')
+    || encryptionError.includes('browser key does not match the account key')
+  );
+
+  const handleResetEncryption = async () => {
+    const confirmed = window.confirm(
+      'Reset this account’s encryption key for this device? Messages encrypted to the previous key may become permanently unreadable, including on other devices.',
+    );
+    if (!confirmed) return;
+
+    setIsResettingEncryption(true);
+    setActionError('');
+    try {
+      await resetEncryptionIdentity();
+    } catch (error) {
+      setActionError(error.message || 'Could not reset the encryption key.');
+    } finally {
+      setIsResettingEncryption(false);
+    }
+  };
 
   useEffect(() => {
     if (!selectedUser) return;
@@ -240,9 +266,21 @@ export const ChatWindow = ({ onBackToSidebar }) => {
       </header>
 
       {encryptionStatus !== 'ready' && (
-        <div className="encryption-status-banner" role={encryptionStatus === 'error' ? 'alert' : 'status'}>
-          {encryptionStatus === 'loading' ? 'Preparing this device’s encryption key…' : encryptionError}
-        </div>
+        <>
+          <div className="encryption-status-banner" role={encryptionStatus === 'error' ? 'alert' : 'status'}>
+            {encryptionStatus === 'loading' ? 'Preparing this device’s encryption key…' : encryptionError}
+          </div>
+          {canResetEncryption && (
+            <button
+              type="button"
+              className="btn-primary encryption-reset-button"
+              onClick={handleResetEncryption}
+              disabled={isResettingEncryption}
+            >
+              {isResettingEncryption ? 'Resetting encryption…' : 'Reset encryption on this device'}
+            </button>
+          )}
+        </>
       )}
 
       {offlineNotice && <div className="offline-chat-notice" role="status">{offlineNotice}</div>}

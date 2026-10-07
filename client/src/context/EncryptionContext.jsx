@@ -89,6 +89,26 @@ export const EncryptionProvider = ({ children }) => {
   const [error, setError] = useState('');
   const [identity, setIdentity] = useState(null);
 
+  const resetEncryptionIdentity = useCallback(async () => {
+    if (!user?._id) throw new Error('Sign in before resetting encryption.');
+
+    setStatus('loading');
+    setError('');
+    try {
+      const localIdentity = await readIdentity(user._id);
+      const nextIdentity = localIdentity || await createIdentity();
+      const savedIdentity = localIdentity || await writeIdentity(user._id, nextIdentity);
+      await api.resetEncryptionKey(savedIdentity.publicKey);
+      if (user?._id) {
+        setIdentity({ ...savedIdentity, userId: user._id });
+        setStatus('ready');
+      }
+    } catch (resetError) {
+      setStatus('error');
+      throw resetError;
+    }
+  }, [user?._id]);
+
   useEffect(() => {
     let active = true;
     setIdentity(null);
@@ -252,7 +272,7 @@ export const EncryptionProvider = ({ children }) => {
   }, [error, identity, status, user?._id]);
 
   return (
-    <EncryptionContext.Provider value={{ status, error, publicKey: identity?.publicKey || '', encryptContent, decryptMessage, createCallKey, unwrapCallKey }}>
+    <EncryptionContext.Provider value={{ status, error, publicKey: identity?.publicKey || '', encryptContent, decryptMessage, createCallKey, unwrapCallKey, resetEncryptionIdentity }}>
       {children}
     </EncryptionContext.Provider>
   );

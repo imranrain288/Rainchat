@@ -66,6 +66,12 @@ export const api = {
       body: JSON.stringify({ publicKey }),
     }),
 
+  resetEncryptionKey: (publicKey) =>
+    apiRequest('/users/encryption-key/reset', {
+      method: 'POST',
+      body: JSON.stringify({ publicKey, confirmReset: true }),
+    }),
+
   getUserProfile: (id) => apiRequest(`/users/${id}`),
 
   setUserBlocked: (id, blocked) =>

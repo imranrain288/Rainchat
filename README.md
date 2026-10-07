@@ -25,6 +25,7 @@ A full-stack, high-performance messaging website built on the **MERN** stack (**
   - **Read Receipts**: Real-time double checkmarks (delivered vs. read in cyan).
   - **Quick Emoji Reactions**: Instant emoji picker bar.
   - **Offline Email Notifications**: Emails recipients when a new message arrives while they are offline (SMTP configuration required).
+  - **End-to-End Encryption**: Private keys are stored on each device; resetting an account's encryption key can make messages encrypted to the previous key unreadable.
   - **User Blocking**: Block or unblock users from a conversation; blocks are enforced for messages in both directions.
   - **Gemini Assistant**: Authenticated AI chat powered by the Gemini API.
 

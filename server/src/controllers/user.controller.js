@@ -240,6 +240,25 @@ export const registerEncryptionPublicKey = async (req, res) => {
   return res.status(409).json({ success: false, message: 'An encryption identity was registered by another device.' });
 };
 
+export const resetEncryptionPublicKey = async (req, res) => {
+  const { publicKey, confirmReset } = req.body;
+  if (confirmReset !== true) {
+    return res.status(400).json({ success: false, message: 'Confirm the encryption key reset.' });
+  }
+  if (typeof publicKey !== 'string' || publicKey.length > 2048 || !/^[A-Za-z0-9+/]+={0,2}$/.test(publicKey)) {
+    return res.status(400).json({ success: false, message: 'Provide a valid public encryption key.' });
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { encryptionPublicKey: publicKey } },
+    { new: true, runValidators: true },
+  ).select('_id');
+  if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+  return res.status(200).json({ success: true, publicKey });
+};
+
 export const setUserBlocked = async (req, res) => {
   try {
     const { id: otherUserId } = req.params;

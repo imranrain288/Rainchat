@@ -1533,6 +1533,10 @@ textarea {
     overflow-wrap: anywhere;
 }
 
+.encryption-reset-button {
+    margin: 0.5rem 1rem;
+}
+
 .encryption-ready-label {
     display: inline-flex;
     align-items: center;
