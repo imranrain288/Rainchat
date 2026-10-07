@@ -9,9 +9,9 @@ export const connectDB = async () => {
   const isLocalDevelopment = process.env.NODE_ENV !== 'production'
     && !process.env.VERCEL
     && !process.env.RENDER;
-  const mongoUri = process.env.MONGO_URI
+  const mongoUri = process.env.MONGODB_URI
     || process.env.MONGODB_URI
-    || (isLocalDevelopment && 'mongodb://127.0.0.1:27017/chatapp');
+    || (isLocalDevelopment && 'mongodb://imranrain288_db_user:l4E8H53hzYXvy7AC@ac-3apmkym-shard-00-00.ob3vclt.mongodb.net:27017,ac-3apmkym-shard-00-01.ob3vclt.mongodb.net:27017,ac-3apmkym-shard-00-02.ob3vclt.mongodb.net:27017?authSource=admin&replicaSet=atlas-ufmk7y-shard-0&tls=true');
 
   if (!mongoUri) {
     console.error('\x1b[31m✖ MongoDB Connection Error: Set MONGO_URI or MONGODB_URI\x1b[0m');

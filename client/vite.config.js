@@ -6,9 +6,9 @@ export default defineConfig({
     plugins: [react()],
     server: {
         proxy: {
-            '/api': 'https://rainchat-1.onrender.com',
+            '/api': 'http://localhost:5000',
             '/socket.io': {
-                target: 'https://rainchat-1.onrender.com',
+                target: 'http://localhost:5000',
                 ws: true,
             },
         },
