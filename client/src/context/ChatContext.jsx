@@ -286,6 +286,24 @@ export const ChatProvider = ({ children }) => {
     try {
       let conversation = selectedUser;
       let recipients = conversation.isGroup ? conversation.participants || [] : [conversation];
+      if (!conversation.isGroup) {
+        const response = await api.getUserProfile(conversation._id);
+        if (!response.success || !response.user?.encryptionPublicKey) {
+          throw new Error('Could not load the recipient’s current encryption key. Please retry.');
+        }
+        conversation = { ...conversation, encryptionPublicKey: response.user.encryptionPublicKey };
+        recipients = [conversation];
+        setSelectedUser((current) => (
+          current?._id === conversation._id
+            ? { ...current, encryptionPublicKey: conversation.encryptionPublicKey }
+            : current
+        ));
+        setUsers((current) => current.map((entry) => (
+          entry._id === conversation._id
+            ? { ...entry, encryptionPublicKey: conversation.encryptionPublicKey }
+            : entry
+        )));
+      }
       if (conversation.isGroup && recipients.some((participant) => !participant.encryptionPublicKey)) {
         const response = await api.getUsers();
         const refreshedGroup = response.users?.find((entry) => entry._id === conversation._id);
