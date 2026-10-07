@@ -27,6 +27,8 @@ export const DashboardPage = () => {
 
     const handleBackToSidebar = () => {
         setIsMobileSidebarOpen(true);
+        setIsAssistantOpen(false);
+        setSelectedUser(null);
     };
 
     const handleOpenAssistant = () => {
