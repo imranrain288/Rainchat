@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">RainChat</string>
-    <string name="title_activity_main">RainChat</string>
-    <string name="package_name">com.imran.rainchat</string>
-    <string name="custom_url_scheme">com.imran.rainchat</string>
+    <string name="app_name">Conversa</string>
+    <string name="title_activity_main">Conversa</string>
+    <string name="package_name">com.imran.conversa</string>
+    <string name="custom_url_scheme">com.imran.conversa</string>
 </resources>

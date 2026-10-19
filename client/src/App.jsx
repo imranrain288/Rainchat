@@ -34,7 +34,7 @@ const MainApp = () => {
           <span className="typing-dot" style={{ animationDelay: '0.2s' }} />
           <span className="typing-dot" style={{ animationDelay: '0.4s' }} />
         </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Loading RainChat...</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Loading Conversa...</p>
       </div>
     );
   }

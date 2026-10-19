@@ -3,13 +3,11 @@ import { useChat } from '../context/ChatContext';
 import { Sidebar } from '../components/Sidebar';
 import { ChatWindow } from '../components/ChatWindow';
 import { EmptyChat } from '../components/EmptyChat';
-import { AIChatPanel } from '../components/AIChatPanel';
 import { CallOverlay } from '../components/CallOverlay';
 
 export const DashboardPage = () => {
     const { selectedUser, setSelectedUser } = useChat();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(true);
-    const [isAssistantOpen, setIsAssistantOpen] = useState(false);
     const [theme, setTheme] = useState(() => (
         localStorage.getItem('theme') === 'light' ? 'light' : 'dark'
     ));
@@ -19,21 +17,39 @@ export const DashboardPage = () => {
         localStorage.setItem('theme', theme);
     }, [theme]);
 
+    useEffect(() => {
+        const handleAndroidBack = () => {
+            if (selectedUser || !isMobileSidebarOpen) {
+                handleBackToSidebar();
+                return true;
+            }
+            return false;
+        };
+
+        window.onAndroidBackButton = handleAndroidBack;
+
+        const handleDocBack = (e) => {
+            if (handleAndroidBack()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        };
+        document.addEventListener('backbutton', handleDocBack);
+
+        return () => {
+            delete window.onAndroidBackButton;
+            document.removeEventListener('backbutton', handleDocBack);
+        };
+    }, [selectedUser, isMobileSidebarOpen]);
+
     const handleSelectUser = (user) => {
-        setIsAssistantOpen(false);
         setSelectedUser(user);
         setIsMobileSidebarOpen(false);
     };
 
     const handleBackToSidebar = () => {
         setIsMobileSidebarOpen(true);
-        setIsAssistantOpen(false);
         setSelectedUser(null);
-    };
-
-    const handleOpenAssistant = () => {
-        setIsAssistantOpen(true);
-        setIsMobileSidebarOpen(false);
     };
 
     return (
@@ -42,16 +58,12 @@ export const DashboardPage = () => {
             <Sidebar
                 isMobileOpen={isMobileSidebarOpen || !selectedUser}
                 onSelectUser={handleSelectUser}
-                onOpenAssistant={handleOpenAssistant}
-                isAssistantOpen={isAssistantOpen}
                 theme={theme}
                 onToggleTheme={() => setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark')}
             />
 
             {/* Main Chat Area or Welcome Screen */}
-            {isAssistantOpen ? (
-                <AIChatPanel onBackToSidebar={handleBackToSidebar} />
-            ) : selectedUser ? (
+            {selectedUser ? (
                 <ChatWindow onBackToSidebar={handleBackToSidebar} />
             ) : (
                 <EmptyChat />

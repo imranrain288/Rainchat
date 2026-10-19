@@ -242,7 +242,7 @@ export const CallProvider = ({ children }) => {
       const incomingCall = {
         callId,
         peerId: from,
-        displayName: target?.fullName || 'RainChat user',
+        displayName: target?.fullName || 'Conversa user',
         callType,
         direction: 'incoming',
         status: 'incoming',

@@ -17,7 +17,7 @@ export const EmptyChat = () => {
         Hello, {user?.fullName?.split(' ')[0] || 'there'}! 👋
       </h2>
       <p className="empty-chat-description">
-        Welcome to RainChat. Select any registered member from the conversation list on the left to start a real-time conversation.
+        Welcome to Conversa. Select any registered member from the conversation list on the left to start a real-time conversation.
       </p>
 
     </div>

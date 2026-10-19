@@ -3,7 +3,7 @@ import { api } from '../services/api';
 import { useAuth } from './AuthContext';
 
 const EncryptionContext = createContext(null);
-const DATABASE_NAME = 'rainchat-encryption';
+const DATABASE_NAME = 'conversa-encryption';
 const DATABASE_VERSION = 1;
 const KEY_STORE = 'identities';
 
@@ -121,7 +121,7 @@ export const EncryptionProvider = ({ children }) => {
     setStatus('loading');
     const initializeIdentity = async () => {
       try {
-        if (!globalThis.crypto?.subtle) throw new Error('Web Crypto is unavailable. Open RainChat over HTTPS or localhost.');
+        if (!globalThis.crypto?.subtle) throw new Error('Web Crypto is unavailable. Open Conversa over HTTPS or localhost.');
         const [serverIdentity, localIdentity] = await Promise.all([
           api.getEncryptionKey(),
           readIdentity(user._id),

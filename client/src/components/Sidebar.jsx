@@ -3,9 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
 import { ConversationList } from './ConversationList';
 import { UserProfileModal } from './UserProfileModal';
-import { Search, LogOut, Settings, Sparkles, Sun, Moon, UsersRound, X } from 'lucide-react';
+import { Search, LogOut, Settings, Sun, Moon, UsersRound, X } from 'lucide-react';
 
-export const Sidebar = ({ isMobileOpen, onSelectUser, onOpenAssistant, isAssistantOpen, theme, onToggleTheme }) => {
+export const Sidebar = ({ isMobileOpen, onSelectUser, theme, onToggleTheme }) => {
   const { user, logout } = useAuth();
   const { users, createGroup } = useChat();
   const [searchQuery, setSearchQuery] = useState('');
@@ -100,15 +100,6 @@ export const Sidebar = ({ isMobileOpen, onSelectUser, onOpenAssistant, isAssista
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <button
-          type="button"
-          className={`assistant-launcher ${isAssistantOpen ? 'active' : ''}`}
-          onClick={onOpenAssistant}
-          aria-pressed={isAssistantOpen}
-        >
-          <Sparkles size={17} />
-          <span>Gemini assistant</span>
-        </button>
       </div>
 
       {/* Conversation List Header */}

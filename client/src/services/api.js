@@ -119,10 +119,4 @@ export const api = {
     apiRequest(`/messages/read/${userId}`, {
       method: 'PUT',
     }),
-
-  chatWithGemini: (messages) =>
-    apiRequest('/ai/chat', {
-      method: 'POST',
-      body: JSON.stringify({ messages }),
-    }),
 };

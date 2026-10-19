@@ -18,7 +18,7 @@ export const SignupPage = ({ onSwitchToLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState(PRESET_AVATARS[0]);
-  const [bio, setBio] = useState('Hey there! I am using RainChat.');
+  const [bio, setBio] = useState('Hey there! I am using Conversa.');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
