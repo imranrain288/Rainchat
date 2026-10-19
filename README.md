@@ -96,19 +96,7 @@ The Capacitor build uses relative asset URLs so the app can load its bundled fil
 
 ---
 
-## 👤 One-Click Demo Credentials
 
-To test two-way real-time messaging between two browser tabs:
-
-| Name | Email | Password |
-| :--- | :--- | :--- |
-| **Alex Morgan** | `alex@example.com` | `password123` |
-| **Sarah Chen** | `sarah@example.com` | `password123` |
-| **David Miller** | `david@example.com` | `password123` |
-
-*(You can also sign up a new account anytime on the Signup page!)*
-
----
 
 ## 📂 Project Architecture
 
