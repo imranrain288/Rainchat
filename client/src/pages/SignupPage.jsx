@@ -68,9 +68,9 @@ export const SignupPage = ({ onSwitchToLogin }) => {
           </div>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.03em' }}>
-              Rain<span style={{ color: 'var(--accent-purple)' }}>Chat</span>
+              Conversa
             </h1>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Join the platform</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Join the application</p>
           </div>
         </div>
 
