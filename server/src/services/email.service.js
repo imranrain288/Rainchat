@@ -26,14 +26,25 @@ const getTransporter = () => {
 };
 
 export const sendOfflineMessageEmail = async ({ recipient, senderName, message }) => {
+  if (!recipient?.email) {
+    console.warn('[email] Recipient has no email address. Skipping email notification.');
+    return false;
+  }
+
   const mailTransporter = getTransporter();
   if (!mailTransporter) return false;
 
-  await mailTransporter.sendMail({
-    from: process.env.EMAIL_FROM || process.env.SMTP_USER,
-    to: recipient.email,
-    subject: `New PulseChat message from ${senderName}`,
-    text: `${senderName} sent you a message on PulseChat:\n\n${message}\n\nSign in to PulseChat to reply.`,
-  });
-  return true;
+  try {
+    await mailTransporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+      to: recipient.email,
+      subject: `New Conversa message from ${senderName}`,
+      text: `${senderName} sent you a message on Conversa:\n\n${message}\n\nSign in to Conversa to reply.`,
+    });
+    console.log(`[email] Offline message email successfully sent to ${recipient.email}`);
+    return true;
+  } catch (error) {
+    console.error(`[email] Error sending offline message email to ${recipient.email}:`, error.message);
+    throw error;
+  }
 };

@@ -49,7 +49,7 @@ app.use(
 app.get('/', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    service: 'RainChat API',
+    service: 'Conversa API',
     health: '/api/health',
   });
 });

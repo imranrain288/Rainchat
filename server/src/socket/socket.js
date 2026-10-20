@@ -33,6 +33,11 @@ export const getUserRoom = (userId) => {
   return normalizedUserId ? `user:${normalizedUserId}` : null;
 };
 
+export const isUserOnline = (userId) => {
+  const normalizedUserId = userId?.toString();
+  return normalizedUserId ? (userSocketMap.get(normalizedUserId)?.size > 0) : false;
+};
+
 io.on('connection', (socket) => {
   const userId = socket.handshake.query.userId;
   socket.data.userId = userId && userId !== 'undefined' ? userId : null;

@@ -1,6 +1,6 @@
 import { Message } from '../models/Message.js';
 import { Conversation } from '../models/Conversation.js';
-import { getUserRoom, io } from '../socket/socket.js';
+import { getUserRoom, isUserOnline, io } from '../socket/socket.js';
 import { User } from '../models/User.js';
 import { sendOfflineMessageEmail } from '../services/email.service.js';
 
@@ -237,11 +237,19 @@ export const sendMessage = async (req, res) => {
     if (replyMessage) await newMessage.populate('replyTo', 'content senderId messageType encryption callType');
 
     // Real-time notification via Socket.io
-    const receiverSocketId = getUserRoom(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('newMessage', newMessage);
-    } else {
-      const emailText = messageType === 'image' ? 'You received a photo.' : messageType === 'audio' ? 'You received a voice message.' : messageType === 'document' ? 'You received a document.' : messageType === 'call' ? 'You received a missed call.' : 'You received an encrypted message.';
+    const receiverRoom = getUserRoom(receiverId);
+    if (receiverRoom) {
+      io.to(receiverRoom).emit('newMessage', newMessage);
+    }
+
+    // Send email notification if receiver is offline
+    if (!isUserOnline(receiverId)) {
+      const emailText = messageType === 'image' ? 'You received a photo.'
+        : messageType === 'audio' ? 'You received a voice message.'
+        : messageType === 'document' ? 'You received a document.'
+        : messageType === 'call' ? 'You received a missed call.'
+        : (content && !encryption ? content.slice(0, 100) : 'You received a message.');
+
       sendOfflineMessageEmail({ recipient: receiver, senderName: sender.fullName, message: emailText })
         .catch((error) => console.error('Failed to send offline message email:', error.message));
     }
