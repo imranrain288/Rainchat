@@ -26,8 +26,7 @@ A full-stack, high-performance messaging website built on the **MERN** stack (**
   - **Quick Emoji Reactions**: Instant emoji picker bar.
   - **Offline Email Notifications**: Emails recipients when a new message arrives while they are offline (SMTP configuration required).
   - **End-to-End Encryption**: Private keys are stored on each device; resetting an account's encryption key can make messages encrypted to the previous key unreadable.
-  - **User Blocking**: Block or unblock users from a conversation; blocks are enforced for messages in both directions.
-  - **Gemini Assistant**: Authenticated AI chat powered by the Gemini API.
+  - **User Blocking**: Block or unblock users from a conversation; blocks are enforced for messages in both directions
 
 - **Design & Aesthetics**:
   - Deep obsidian dark mode with glowing violet/indigo/cyan accents.
@@ -55,19 +54,15 @@ Set these variables in `server/.env` to enable SMTP delivery. Without them, chat
 ```env
 SMTP_HOST=smtp.example.com
 SMTP_PORT=587
-SMTP_SECURE=false
+SMTP_SECURE=true
 SMTP_USER=your-smtp-username
 SMTP_PASS=your-smtp-password
-EMAIL_FROM=conversa <notifications@example.com>
+EMAIL_FROM=conversa<notifications@example.com>
 ```
 
 ### 4. Configure Gemini Assistant
 Set a valid Google AI Studio API key in `server/.env`. The key stays on the backend and is never sent to the browser.
-```env
-GEMINI_API_KEY=your-google-ai-studio-api-key
-GEMINI_MODEL=gemini-3.8-flash
-```
-Restart the backend after changing environment variables.
+
 
 ### 5. Deploy on Vercel
 Deploy the frontend and backend as separate Vercel projects from this repository. The backend is an Express app with a separate Socket.IO function. Vercel WebSocket support is currently in beta and requires Fluid Compute.
