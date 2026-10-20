@@ -1,4 +1,4 @@
-# conversa • online chatting application
+# online chatting application
 
 A full-stack, high-performance messaging website built on the **MERN** stack (**M**ongoDB, **E**xpress.js, **R**eact.js, **N**ode.js) with real-time **Socket.IO** synchronization.
 
