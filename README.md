@@ -60,10 +60,6 @@ SMTP_PASS=your-smtp-password
 EMAIL_FROM=conversa<notifications@example.com>
 ```
 
-### 4. Configure Gemini Assistant
-Set a valid Google AI Studio API key in `server/.env`. The key stays on the backend and is never sent to the browser.
-
-
 ### 5. Deploy on Vercel
 Deploy the frontend and backend as separate Vercel projects from this repository. The backend is an Express app with a separate Socket.IO function. Vercel WebSocket support is currently in beta and requires Fluid Compute.
 
